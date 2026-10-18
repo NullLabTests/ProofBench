@@ -176,7 +176,7 @@ From `docs/installation.md` (the local Kind guide) and `docs/architecture.md`:
 
   and the standard appendix boilerplate ending ("Copyright [yyyy] [name of copyright owner] … limitations under the
   License."). `gh` confirms `licenseInfo: {"key": "apache-2.0", "name": "Apache License 2.0"}`. README.md §License:
-  "SPACE is licensed under the [Apache License, Version 2.0](LICENSE)."
+  "SPACE is licensed under the [Apache License, Version 2.0](https://github.com/perplexityai/SPACE/blob/main/LICENSE)."
 - **No NOTICE file exists** (checked with `find . -iname 'NOTICE*' -not -path './.git/*'` — no results), so there is
   no NOTICE-attribution obligation on redistributors beyond the Apache-2.0 section 4 requirements.
 - **Obligations if you copy the code**: keep the Apache license text + the "Copyright 2026 Perplexity AI" notice and

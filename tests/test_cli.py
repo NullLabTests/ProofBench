@@ -100,6 +100,27 @@ def test_run_inspect_report_export_verify_cycle(
     assert "bundle verification PASSED" in verify_out
 
 
+def test_runs_dir_flag_resolves_bare_run_ids(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """inspect/report/export accept bare ids with --runs-dir (like run/resume)."""
+    runs = tmp_path / "runs"
+    spec_file = tmp_path / "spec.json"
+    spec_file.write_text(json.dumps(make_spec_dict()), encoding="utf-8")
+    main(["run", str(spec_file), "--run-id", "rid", "--runs-dir", str(runs)])
+    capsys.readouterr()
+
+    main(["inspect", "rid", "--runs-dir", str(runs)])
+    assert json.loads(capsys.readouterr().out)["finalized"] is True
+
+    main(["report", "rid", "--runs-dir", str(runs)])
+    assert "IMPROVEMENT" in capsys.readouterr().out.upper()
+
+    bundle = tmp_path / "bundle"
+    main(["export", "rid", "--runs-dir", str(runs), "--out", str(bundle)])
+    assert (bundle / "MANIFEST.json").exists()
+
+
 def test_verify_bundle_exit_code_on_failure(tmp_path: Path) -> None:
     runs = tmp_path / "runs"
     spec_file = tmp_path / "spec.json"

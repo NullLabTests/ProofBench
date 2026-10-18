@@ -223,7 +223,7 @@ def resume(
     runs_dir: Path = typer.Option(None, "--runs-dir", help="Runs directory."),
 ) -> None:
     """Resume an interrupted or incomplete run from its last checkpoint."""
-    run_dir = _resolve_run(run_id, runs_dir) if runs_dir is not None else _resolve_run(run_id)
+    run_dir = _resolve_run(run_id, runs_dir)
     spec_doc = read_json(run_dir / "spec.json")
     spec = load_spec(spec_doc["spec"])
     state = read_json(run_dir / "state.json")
@@ -236,9 +236,12 @@ def resume(
 
 
 @app.command()
-def inspect(run_id: str = typer.Argument(...)) -> None:
+def inspect(
+    run_id: str = typer.Argument(...),
+    runs_dir: Path = typer.Option(None, "--runs-dir", help="Runs directory."),
+) -> None:
     """Show run status: phase, rounds, lineage, quarantine, resources, events."""
-    run_dir = _resolve_run(run_id)
+    run_dir = _resolve_run(run_id, runs_dir)
     state_path = run_dir / "state.json"
     if not state_path.exists():
         raise RunNotFound(f"{run_dir} has no state.json")
@@ -286,9 +289,12 @@ def verify_bundle_cmd(path: Path = typer.Argument(..., exists=True, file_okay=Fa
 
 
 @app.command()
-def report(run_id: str = typer.Argument(...)) -> None:
+def report(
+    run_id: str = typer.Argument(...),
+    runs_dir: Path = typer.Option(None, "--runs-dir", help="Runs directory."),
+) -> None:
     """Generate the markdown report for a completed run."""
-    run_dir = _resolve_run(run_id)
+    run_dir = _resolve_run(run_id, runs_dir)
     typer.echo(generate_report(run_dir))
 
 
@@ -296,9 +302,10 @@ def report(run_id: str = typer.Argument(...)) -> None:
 def export(
     run_id: str = typer.Argument(...),
     out: Path = typer.Option(None, "--out", help="Output directory for the bundle."),
+    runs_dir: Path = typer.Option(None, "--runs-dir", help="Runs directory."),
 ) -> None:
     """Export a self-contained, checksummed evidence bundle for a run."""
-    run_dir = _resolve_run(run_id)
+    run_dir = _resolve_run(run_id, runs_dir)
     out_dir = out or Path(f"proofbench-bundle-{run_dir.name}")
     export_bundle(run_dir, out_dir)
     typer.echo(f"bundle written to {out_dir}")

@@ -86,7 +86,7 @@ python3 -m venv .venv
 # 3. Validate a preregistered experiment spec (strictly)
 .venv/bin/proofbench validate-experiment experiments/adaptive-vs-fixed-v1.json
 
-# 4. Run it (deterministic, offline, CPU-only; a few minutes)
+# 4. Run it (deterministic, offline, CPU-only; ~3 s on a laptop)
 .venv/bin/proofbench run experiments/adaptive-vs-fixed-v1.json
 
 # 5. Inspect the run
@@ -108,6 +108,7 @@ passed.
 |---|---|
 | `proofbench doctor` | Environment diagnosis (offline) |
 | `proofbench list-tasks` | Built-in task families + difficulty parameters |
+| `proofbench cite` | Citations, licenses & upstream attribution (`--json` for machine-readable) |
 | `proofbench validate-experiment SPEC` | Strict spec validation; rejects malformed input (exit 3) |
 | `proofbench run SPEC` | Execute / resume an experiment |
 | `proofbench resume RUN_ID` | Resume from the last atomic checkpoint |
@@ -179,6 +180,12 @@ either project; design ideas are attributed there.
   separation, explicit trust boundaries, requested-vs-observed resource
   reporting, pollable asynchronous operations, and content-addressed
   execution-environment identity.
+
+## Documentation
+
+- [Architecture](docs/architecture.md) · [Threat model](docs/threat-model.md) · [Methodology](docs/methodology.md) · [Statistics](docs/statistics.md) · [Schemas](docs/schemas.md) · [Baselines](docs/baselines.md)
+- [Creating tasks](docs/creating-tasks.md) · [Agent adapters](docs/agent-adapters.md) · [Installation](docs/installation.md) · [CLI reference](docs/cli.md) · [Limitations](docs/limitations.md) · [Roadmap](docs/roadmap.md)
+- [Upstream research](docs/upstream/apple-rsi-inference-bench.md), [SPACE](docs/upstream/perplexity-space.md) · [ADRs](docs/adr/)
 
 ## Development
 

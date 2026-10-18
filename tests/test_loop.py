@@ -38,6 +38,19 @@ def test_end_to_end_run_issues_certificate(tmp_path: Path, tiny_spec) -> None:  
     assert "certificate_issued" in kinds
 
 
+def test_resource_accounting_counts_every_suite(tmp_path: Path, tiny_spec) -> None:  # type: ignore[no-untyped-def]
+    """Every episode the loop runs must appear in resource accounting.
+
+    tiny_spec (1 task): 1 round -> train suite (3 seeds) + patched validation
+    suite (2 seeds) + first-round accepted-baseline validation suite (2 seeds)
+    + final evaluation (3 suites x 4 test seeds) = 19 episodes.
+    """
+    ctx = _ctx(tmp_path, tiny_spec.model_dump(mode="json"), "r-acct")
+    run_experiment(ctx)
+    state = read_json(ctx.run_dir / "state.json")
+    assert state["resource"]["episodes"] == 19
+
+
 def test_baseline_is_hash_verified_and_recorded(tmp_path: Path, tiny_spec) -> None:  # type: ignore[no-untyped-def]
     ctx = _ctx(tmp_path, tiny_spec.model_dump(mode="json"), "r2")
     outcome = run_experiment(ctx)

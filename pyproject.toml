@@ -9,8 +9,9 @@ authors = [{ name = "ProofBench contributors" }]
 dependencies = [
     "pydantic>=2.6,<3",
     "numpy>=1.26",
-    # typer>=0.27 vendors click internally, which breaks this project's use of
-    # the external click exception contract in cli.main(). Pin until adapted.
+    # typer 0.26+ vendors click as typer._click; cli.main() resolves the
+    # exception module at runtime and is tested against 0.26.x. The <0.27
+    # ceiling guards against untested future API shifts — raise deliberately.
     "typer>=0.12,<0.27",
     "click>=8.1",
 ]

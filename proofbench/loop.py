@@ -388,6 +388,7 @@ def _run_rounds(ctx: Context, state: dict[str, Any], events: EventLog) -> dict[s
                 spec.seeds.validation_seeds,
                 "validation",
             )
+            state["resource"]["episodes"] += len(accepted_val)
             state["accepted_val_mean"] = _mean_score(accepted_val)
         patched_mean = _mean_score(patched_val)
         state["resource"]["episodes"] += len(patched_val)
