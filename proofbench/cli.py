@@ -168,6 +168,17 @@ def list_tasks() -> None:
             typer.echo(f"    - {key}")
 
 
+@app.command()
+def cite(as_json: bool = typer.Option(False, "--json", help="Emit machine-readable JSON.")) -> None:
+    """Print citations, licenses, and upstream attribution for ProofBench."""
+    from proofbench.citations import citations_as_json, citations_as_text
+
+    if as_json:
+        typer.echo(json.dumps(citations_as_json(), indent=2, sort_keys=True))
+    else:
+        typer.echo(citations_as_text())
+
+
 @app.command("validate-experiment")
 def validate_experiment(spec_path: Path = typer.Argument(..., exists=True, dir_okay=False)) -> None:
     """Strictly validate an experiment specification; reject invalid input."""

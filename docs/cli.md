@@ -25,6 +25,11 @@ disk, container runtime (optional). Never touches the network.
 ### `proofbench list-tasks`
 Built-in task families with their documented difficulty parameters.
 
+### `proofbench cite [--json]`
+Citations, licenses, and upstream attribution. `--json` emits a stable
+machine-readable shape. Upstream listings are ideas-only attribution; no
+upstream code is redistributed by ProofBench.
+
 ### `proofbench validate-experiment SPEC`
 Strictly validates a specification. Prints the experiment id and the
 **spec hash** (sha256 over the canonical spec JSON). Exits 3 with a

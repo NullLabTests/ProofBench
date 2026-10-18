@@ -50,6 +50,25 @@ def test_list_tasks(capsys: pytest.CaptureFixture[str]) -> None:
         assert family in out
 
 
+def test_cite_lists_upstream_attribution(capsys: pytest.CaptureFixture[str]) -> None:
+    main(["cite"])
+    out = capsys.readouterr().out
+    assert "ProofBench" in out
+    assert "Apple Sample Code License" in out  # ideas-only upstream, non-OSI
+    assert "Apache-2.0" in out  # SPACE
+    assert "no code reused" in out
+    assert "not endorsement" in out
+
+
+def test_cite_json_is_machine_readable(capsys: pytest.CaptureFixture[str]) -> None:
+    main(["cite", "--json"])
+    records = json.loads(capsys.readouterr().out)
+    keys = {r["key"] for r in records}
+    assert {"proofbench", "ml-rsi-inference-bench", "space"} <= keys
+    for r in records:
+        assert {"name", "license", "url", "relationship"} <= set(r)
+
+
 def test_run_inspect_report_export_verify_cycle(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
