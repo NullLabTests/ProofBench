@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="760" height="320" xmlns="http://www.w3.org/2000/svg">
+<rect width="760" height="320" rx="10" fill="#0f1026"/>
+<text x="20" y="40" font-family="monospace" font-size="22" fill="#7cf">
+Independently Verifiable Evidence
+</text>
+<g stroke="#4b7bec" stroke-width="2" fill="#1a1f3a">
+<rect x="25" y="70" width="150" height="70" rx="8"/>
+<rect x="210" y="70" width="150" height="70" rx="8"/>
+<rect x="395" y="70" width="150" height="70" rx="8"/>
+<rect x="580" y="70" width="150" height="70" rx="8"/>
+<circle cx="380" cy="225" r="55" fill="#1a1f3a" stroke="#4b7bec" stroke-width="2"/>
+<rect x="320" y="210" width="120" height="30" rx="6" fill="#1f2f2a" stroke="#2ecc71" stroke-width="2"/>
+</g>
+<g stroke="#7cf" stroke-width="2" marker-end="url(#arrow2)">
+<line x1="175" y1="105" x2="210" y2="105"/>
+<line x1="360" y1="105" x2="395" y2="105"/>
+<line x1="545" y1="105" x2="580" y2="105"/>
+<line x1="655" y1="140" x2="420" y2="200"/>
+</g>
+<text x="35" y="100" font-family="monospace" font-size="11" fill="#fff">RAW TRIALS</text>
+<text x="35" y="120" font-family="monospace" font-size="11" fill="#ff6">per-seed · scores</text>
+<text x="220" y="100" font-family="monospace" font-size="11" fill="#fff">CERTIFICATE</text>
+<text x="220" y="120" font-family="monospace" font-size="11" fill="#ff6">stats + outcome</text>
+<text x="405" y="100" font-family="monospace" font-size="11" fill="#fff">EVENT LOG</text>
+<text x="405" y="120" font-family="monospace" font-size="11" fill="#ff6">hash-chained</text>
+<text x="590" y="100" font-family="monospace" font-size="11" fill="#fff">ARTIFACTS</text>
+<text x="590" y="120" font-family="monospace" font-size="11" fill="#ff6">content-addressed</text>
+<text x="335" y="230" font-family="monospace" font-size="12" fill="#2ecc71">VERIFY-BUNDLE</text>
+<text x="260" y="275" font-family="monospace" font-size="12" fill="#7cf">Recompute → Compare → Detect Tampering</text>
+<defs>
+<marker id="arrow2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+<polygon points="0 0, 10 3.5, 0 7" fill="#7cf"/>
+</marker>
+</defs>
+</svg>

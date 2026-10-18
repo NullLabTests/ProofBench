@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+<rect width="800" height="400" rx="10" fill="#0f1026"/>
+<text x="20" y="40" font-family="monospace" font-size="24" fill="#7cf">
+ProofBench: Verifiable Evidence Pipeline
+</text>
+<g stroke="#4b7bec" stroke-width="2" fill="#1a1f3a" opacity="0.9">
+<rect x="30" y="70" width="140" height="60" rx="8"/>
+<rect x="190" y="70" width="140" height="60" rx="8"/>
+<rect x="350" y="70" width="140" height="60" rx="8"/>
+<rect x="510" y="70" width="140" height="60" rx="8"/>
+<rect x="130" y="170" width="160" height="70" rx="8"/>
+<rect x="330" y="170" width="160" height="70" rx="8"/>
+<rect x="530" y="170" width="160" height="70" rx="8"/>
+<rect x="200" y="280" width="400" height="80" rx="8"/>
+</g>
+<g stroke="#7cf" stroke-width="2" marker-end="url(#arrow)">
+<line x1="100" y1="130" x2="200" y2="170"/>
+<line x1="260" y1="130" x2="280" y2="170"/>
+<line x1="420" y1="130" x2="380" y2="170"/>
+<line x1="580" y1="130" x2="620" y2="170"/>
+<line x1="210" y1="240" x2="310" y2="280"/>
+<line x1="410" y1="240" x2="400" y2="280"/>
+<line x1="610" y1="240" x2="500" y2="280"/>
+</g>
+<text x="40" y="105" font-family="monospace" font-size="13" fill="#fff">PREREGISTERED</text>
+<text x="65" y="125" font-family="monospace" font-size="13" fill="#ff6">SPEC</text>
+<text x="210" y="105" font-family="monospace" font-size="13" fill="#fff">BOUNDED</text>
+<text x="210" y="125" font-family="monospace" font-size="13" fill="#ff6">CANDIDATE</text>
+<text x="360" y="105" font-family="monospace" font-size="13" fill="#fff">IMMUTABLE</text>
+<text x="380" y="125" font-family="monospace" font-size="13" fill="#ff6">BASELINE</text>
+<text x="520" y="105" font-family="monospace" font-size="13" fill="#fff">DETERMINISTIC</text>
+<text x="535" y="125" font-family="monospace" font-size="13" fill="#ff6">TASKS</text>
+<text x="140" y="205" font-family="monospace" font-size="13" fill="#fff">LONG-HORIZON</text>
+<text x="150" y="225" font-family="monospace" font-size="13" fill="#ff6">LOOP + CHECKPOINTS</text>
+<text x="340" y="205" font-family="monospace" font-size="13" fill="#fff">PAIRED ANALYSIS</text>
+<text x="345" y="225" font-family="monospace" font-size="13" fill="#ff6">CI · SIGN-FLIP</text>
+<text x="540" y="205" font-family="monospace" font-size="13" fill="#fff">APPEND-ONLY</text>
+<text x="545" y="225" font-family="monospace" font-size="13" fill="#ff6">EVENT CHAIN</text>
+<text x="230" y="320" font-family="monospace" font-size="16" fill="#fff">EVIDENCE BUNDLE · CONTENT-ADDRESSED</text>
+<text x="240" y="345" font-family="monospace" font-size="13" fill="#ff6">RECOMPUTE CERTIFICATE ⇒ INDEPENDENT VERIFICATION</text>
+<defs>
+<marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+<polygon points="0 0, 10 3.5, 0 7" fill="#7cf"/>
+</marker>
+</defs>
+</svg>

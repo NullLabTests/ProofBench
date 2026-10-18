@@ -5,6 +5,8 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![Offline & CPU-only](https://img.shields.io/badge/runtime-offline%20%C2%B7%20CPU--only-green.svg)](docs/installation.md)
 
+![ProofBench architecture](docs/assets/proofbench-architecture.svg)
+
 **Research-grade benchmarking for long-horizon AI improvement, with
 independently verifiable evidence.**
 
@@ -34,6 +36,8 @@ another researcher can verify offline — no API key, no network, no GPU.
   which **recomputes every certified statistic from raw trials**.
 - Honest statistics: paired comparisons, bootstrap CIs, exact sign-flip
   tests, Holm–Bonferroni correction, explicit missing-trial accounting.
+
+![Independent verification](docs/assets/proofbench-verification.svg)
 
 ## What ProofBench can establish
 
