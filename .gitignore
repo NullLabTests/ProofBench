@@ -1,18 +1,24 @@
-__pycache__/
-*.py[cod]
-*.egg-info/
-*.egg
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-dist/
-build/
+# environments
 .venv/
-.env
-.env.*
-*.swp
-*.swo
-.DS_Store
+__pycache__/
+*.pyc
+*.egg-info/
+
+# run outputs (regenerable; evidence bundles are exported explicitly)
 proofbench_runs/
+proofbench-bundle-*
+bundles/
+
+# editors / os
+.idea/
+.vscode/
+.DS_Store
+
+# tool caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# secrets — never commit
+.env
+*.key

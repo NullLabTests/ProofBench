@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "negative-control-v1",
+  "protocol_id": "proofbench-adaptive-improvement",
+  "protocol_version": "1.0",
+  "run_seed": 4242,
+  "hypothesis": "NEGATIVE CONTROL: an adaptive-search candidate forced to explore_mode=none (refine_fraction pinned to 0, so its behavior is identical in distribution to uniform random search) must NOT demonstrate improvement over the fixed random-search baseline. If this experiment reports improvement_demonstrated, the pipeline is inflating results and must be treated as broken. This control preregisters a null expectation.",
+  "primary_outcome": {
+    "metric": "mean_score",
+    "direction": "higher_is_better",
+    "acceptance_margin": 1.0
+  },
+  "tasks": [
+    {
+      "family": "noisy_blackbox",
+      "version": "1",
+      "difficulty": { "dim": 3, "noise_sigma": 2.0, "modality": 10.0 }
+    }
+  ],
+  "candidate": {
+    "name": "adaptive-search-disabled",
+    "agent": "adaptive_search",
+    "params": {
+      "refine_fraction": 0.0,
+      "mutation_scale": 0.3,
+      "elite_fraction": 0.2,
+      "exploit_mode": "none"
+    }
+  },
+  "baselines": [
+    {
+      "name": "fixed-random-search",
+      "agent": "fixed_random_search",
+      "params": {}
+    }
+  ],
+  "seeds": {
+    "train_seeds": [1, 2, 3, 4, 5, 6],
+    "validation_seeds": [100, 101, 102, 103],
+    "test_seeds": [1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007]
+  },
+  "budget": {
+    "evaluations_per_instance": 60,
+    "max_rounds": 3
+  },
+  "action_bounds": [
+    { "name": "refine_fraction", "kind": "float", "low": 0.0, "high": 1.0 },
+    { "name": "mutation_scale", "kind": "float", "low": 0.001, "high": 1.0 }
+  ],
+  "acceptance": {
+    "validation_margin": 0.25,
+    "min_valid_trial_fraction": 0.9,
+    "quarantine_proposals": true
+  },
+  "analysis": {
+    "bootstrap_resamples": 5000,
+    "bootstrap_seed": 777,
+    "alpha": 0.05,
+    "multiple_comparison": "holm-bonferroni"
+  },
+  "stopping": { "stop_if_no_accepts_for_rounds": null },
+  "notes": "Preregistered null-expectation control. Note: the deterministic proposal mechanism can still raise refine_fraction away from 0 during the long-horizon loop; that is the candidate genuinely adapting, and if it causes improvement_demonstrated the result is legitimate strategy improvement, not a pipeline bug. To force a strict no-adaptation control, keep max_rounds small and accept that proposals may still be validated; interpret accordingly."
+}
