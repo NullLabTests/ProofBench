@@ -27,7 +27,7 @@ CITATIONS: list[dict[str, Any]] = [
         "name": "ProofBench",
         "version": __version__,
         "license": "MIT",
-        "url": "https://github.com/proofbench/proofbench",
+        "url": "https://github.com/NullLabTests/ProofBench",
         "relationship": "this project",
     },
     {

@@ -1,5 +1,10 @@
 # ProofBench
 
+[![CI](https://github.com/NullLabTests/ProofBench/actions/workflows/ci.yml/badge.svg)](https://github.com/NullLabTests/ProofBench/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![Offline & CPU-only](https://img.shields.io/badge/runtime-offline%20%C2%B7%20CPU--only-green.svg)](docs/installation.md)
+
 **Research-grade benchmarking for long-horizon AI improvement, with
 independently verifiable evidence.**
 
@@ -14,6 +19,21 @@ touch the evaluator, the baseline, its own acceptance criteria, the seeds, or
 the evidence history. Every result ships with a machine-checkable
 **improvement certificate** inside a self-contained **evidence bundle** that
 another researcher can verify offline — no API key, no network, no GPU.
+
+**At a glance**
+
+- Deterministic task families (optimization, allocation, planning, noisy
+  black-box, program repair, held-out generalization) — CPU-only, seconds per run.
+- Preregistered hypotheses with a single primary outcome and a three-way
+  verdict: *demonstrated* / *not demonstrated* / *inconclusive*. Negative
+  results are first-class citizens — see [`RESULTS.md`](RESULTS.md).
+- Candidates may only modify **bounded parameters**; they cannot run code,
+  edit the evaluator, move the goalposts, or delete failed trials.
+- Append-only hash-chained event log, content-addressed artifacts, and
+  evidence bundles anyone can re-verify with `proofbench verify-bundle`,
+  which **recomputes every certified statistic from raw trials**.
+- Honest statistics: paired comparisons, bootstrap CIs, exact sign-flip
+  tests, Holm–Bonferroni correction, explicit missing-trial accounting.
 
 ## What ProofBench can establish
 

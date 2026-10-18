@@ -26,6 +26,12 @@ dev = [
 [project.scripts]
 proofbench = "proofbench.cli:main"
 
+[project.urls]
+Homepage = "https://github.com/NullLabTests/ProofBench"
+Repository = "https://github.com/NullLabTests/ProofBench"
+Documentation = "https://github.com/NullLabTests/ProofBench/tree/main/docs"
+Issues = "https://github.com/NullLabTests/ProofBench/issues"
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
