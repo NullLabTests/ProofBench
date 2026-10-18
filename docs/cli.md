@@ -41,7 +41,7 @@ the *same* spec hash, it resumes instead of restarting (idempotent
 initialization). Prints run id, certified outcome, primary statistics, and the
 certificate artifact hash on completion.
 
-### `proofbench resume RUN_ID`
+### `proofbench resume RUN_ID [--runs-dir DIR]`
 Resumes an interrupted or incomplete run from `state.json`. Accepts a run id
 (resolved under the runs dir) or a run directory path.
 
