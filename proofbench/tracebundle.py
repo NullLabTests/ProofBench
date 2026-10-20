@@ -19,7 +19,19 @@ def _safe_env() -> dict[str, str]:
     out: dict[str, str] = {}
     for k, v in os.environ.items():
         kl = k.lower()
-        if any(s in kl for s in ("key", "token", "secret", "password", "pass", "auth", "credential", "private")):
+        if any(
+            s in kl
+            for s in (
+                "key",
+                "token",
+                "secret",
+                "password",
+                "pass",
+                "auth",
+                "credential",
+                "private",
+            )
+        ):
             out[k] = "***REDACTED***"
             continue
         out[k] = v
@@ -31,10 +43,7 @@ def main(argv: list[str] | None = None) -> int:
     if not args or args[0] in ("-h", "--help"):
         print("usage: tracebundle -- <command> [args...]", file=sys.stderr)
         return 0 if args else 2
-    if args[0] == "--":
-        cmd = args[1:]
-    else:
-        cmd = list(args)
+    cmd = args[1:] if args[0] == "--" else list(args)
     if not cmd:
         print("tracebundle: missing command", file=sys.stderr)
         return 2
@@ -42,7 +51,7 @@ def main(argv: list[str] | None = None) -> int:
     start_wall = time.time()
     start_perf = time.perf_counter()
     try:
-        proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        proc = subprocess.run(cmd, capture_output=True, text=True)
     except FileNotFoundError:
         print(f"tracebundle: command not found: {cmd[0]!r}", file=sys.stderr)
         return 127
@@ -52,8 +61,12 @@ def main(argv: list[str] | None = None) -> int:
     bundle_dir = Path(f"tracebundle-{ts}-{os.getpid()}")
     bundle_dir.mkdir(parents=True, exist_ok=False)
 
-    (bundle_dir / "stdout.txt").write_text(proc.stdout if proc.stdout is not None else "", encoding="utf-8")
-    (bundle_dir / "stderr.txt").write_text(proc.stderr if proc.stderr is not None else "", encoding="utf-8")
+    (bundle_dir / "stdout.txt").write_text(
+        proc.stdout if proc.stdout is not None else "", encoding="utf-8"
+    )
+    (bundle_dir / "stderr.txt").write_text(
+        proc.stderr if proc.stderr is not None else "", encoding="utf-8"
+    )
 
     artifacts: dict[str, str] = {}
     for name in ("stdout.txt", "stderr.txt"):
@@ -92,18 +105,26 @@ def main(argv: list[str] | None = None) -> int:
         "artifacts": dict(artifacts),
     }
     try:
-        r = subprocess.run(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        r = subprocess.run(
+            ["git", "rev-parse", "HEAD"], capture_output=True, text=True
+        )
         if r.returncode == 0 and r.stdout.strip():
             manifest["git"] = {"commit": r.stdout.strip()}
     except Exception:
         pass
 
-    # Build in a way compatible with common expectations
-    tmp_manifest = json.loads(json.dumps(manifest))
-    (bundle_dir / "manifest.json").write_text(canonical_json(tmp_manifest) + "\n", encoding="utf-8")
-    tmp_manifest["artifacts"]["manifest.json"] = hash_file(str(bundle_dir / "manifest.json"))
-    (bundle_dir / "manifest.json").write_text(canonical_json(tmp_manifest) + "\n", encoding="utf-8")
-    (bundle_dir / "bundle.sha256").write_text(hash_file(str(bundle_dir / "manifest.json")) + "\n", encoding="utf-8")
+    m = json.loads(canonical_json(manifest))
+    m_no_self = json.loads(canonical_json(m))
+    (bundle_dir / "manifest.json").write_text(
+        canonical_json(m_no_self) + "\n", encoding="utf-8"
+    )
+    self_h = hash_file(str(bundle_dir / "manifest.json"))
+    m["artifacts"]["manifest.json"] = self_h
+    m_final = canonical_json(m) + "\n"
+    (bundle_dir / "manifest.json").write_text(m_final, encoding="utf-8")
+    manifest_path = bundle_dir / "manifest.json"
+    bundle_hash = hash_file(str(manifest_path))
+    (bundle_dir / "bundle.sha256").write_text(bundle_hash + "\n", encoding="utf-8")
 
     print(f"tracebundle: wrote {bundle_dir}")
     print(f"tracebundle: verify with `reprocheck {bundle_dir}`")

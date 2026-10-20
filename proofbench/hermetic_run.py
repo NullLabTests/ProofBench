@@ -70,7 +70,7 @@ def main(argv: list[str] | None = None) -> int:
         "executable": sys.executable,
         "env_lock": env_lock,
         "env_lock_hash": lock_hash,
-        "env_keys": sorted([k for k in os.environ.keys() if not any(s in k.lower() for s in ("key", "token", "secret"))]),
+        "env_keys": sorted([k for k in os.environ if not any(s in k.lower() for s in ("key", "token", "secret"))]),
     }
     snap_hash = hash_obj(snap)
     (out_dir / "snapshot.json").write_text(canonical_json(snap) + "\n", encoding="utf-8")

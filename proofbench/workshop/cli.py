@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import sys
 
+from proofbench import eval_audit, hermetic_run
 from proofbench.attest import attest
 from proofbench.ledger import ledger
 from proofbench.workshop import reprocheck, tracebundle
@@ -33,12 +34,10 @@ def main(argv: list[str] | None = None) -> int:
     if cmd == "verify":
         return reprocheck.main(rest)
     if cmd == "audit":
-        from proofbench import eval_audit
         return eval_audit.main(rest)
     if cmd == "attest":
         return attest.main(rest)
     if cmd == "hermetic":
-        from proofbench import hermetic_run
         return hermetic_run.main(rest)
     if cmd == "ledger":
         if not rest:
@@ -46,8 +45,8 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         sub = rest[0]
         if sub == "verify":
-            l = ledger.Ledger()
-            ok, errs = l.verify()
+            led = ledger.Ledger()
+            ok, errs = led.verify()
             if ok:
                 print("ledger: OK")
                 return 0
@@ -55,12 +54,12 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"ledger: {e}", file=sys.stderr)
             return 1
         if sub == "add":
-            l = ledger.Ledger()
+            led = ledger.Ledger()
             try:
                 entry = json.loads(rest[1]) if len(rest) > 1 else {}
             except Exception:
                 entry = {"raw": " ".join(rest[1:])}
-            rec = l.append(entry)
+            rec = led.append(entry)
             print(json.dumps(rec))
             return 0
     print(f"unknown command: {cmd}", file=sys.stderr)

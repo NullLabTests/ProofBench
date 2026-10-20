@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from proofbench.canonical import canonical_json, hash_file
+from proofbench.canonical import hash_file
 
 
 def verify(bundle_dir: Path | str) -> dict[str, Any]:

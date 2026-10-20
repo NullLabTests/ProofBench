@@ -8,6 +8,7 @@ and JSON reports. 100% offline.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 import sys
@@ -20,10 +21,8 @@ SUSPICIOUS_EXTS = {".py", ".json", ".yaml", ".yml", ".toml", ".md", ".txt", ".cs
 def _read_texts(root: Path) -> list[tuple[str, str]]:
     texts: list[tuple[str, str]] = []
     if root.is_file():
-        try:
+        with contextlib.suppress(Exception):
             texts.append((str(root), root.read_text(encoding="utf-8", errors="ignore")))
-        except Exception:
-            pass
         return texts
     if not root.exists():
         return texts
@@ -34,10 +33,8 @@ def _read_texts(root: Path) -> list[tuple[str, str]]:
             continue
         if p.suffix.lower() not in SUSPICIOUS_EXTS and p.name not in ("README", "LICENSE"):
             continue
-        try:
+        with contextlib.suppress(Exception):
             texts.append((str(p), p.read_text(encoding="utf-8", errors="ignore")))
-        except Exception:
-            pass
     return texts
 
 
@@ -94,7 +91,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0 if args else 2
     as_json = "--json" in args
-    root = Path([a for a in args if not a.startswith("-")][0])
+    root = Path(next(a for a in args if not a.startswith("-")))
     if not root.exists():
         print(f"eval-audit: not found: {root}", file=sys.stderr)
         return 1

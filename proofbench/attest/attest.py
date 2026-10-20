@@ -13,7 +13,6 @@ from typing import Any
 from proofbench import __version__
 from proofbench.canonical import hash_file, hash_obj
 
-
 SCHEMA = "attestation/1"
 
 
@@ -60,7 +59,10 @@ def main(argv: list[str] | None = None) -> int:
             },
             "runDetails": {
                 "builder": {"id": "proofbench-attest"},
-                "metadata": {"invocationId": f"{os.getpid()}-{int(time.time())}", "startedOn": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())},
+                "metadata": {
+                    "invocationId": f"{os.getpid()}-{int(time.time())}",
+                    "startedOn": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                },
                 "byproducts": [],
             },
         },

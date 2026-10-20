@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import time
 from pathlib import Path
@@ -36,10 +37,8 @@ class Ledger:
         with self.path.open() as f:
             for line in f:
                 if line.strip():
-                    try:
+                    with contextlib.suppress(Exception):
                         last = json.loads(line)
-                    except Exception:
-                        pass
         return last.get("hash", "0" * 64) if last else "0" * 64
 
     def verify(self) -> tuple[bool, list[str]]:
