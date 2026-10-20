@@ -30,6 +30,8 @@ tracebundle = "proofbench.tracebundle:main"
 reprocheck = "proofbench.reprocheck:main"
 eval-audit = "proofbench.eval_audit:main"
 hermetic-run = "proofbench.hermetic_run:main"
+proofbench-workshop = "proofbench.workshop.cli:main"
+proofbench-attest = "proofbench.attest.attest:main"
 
 [project.urls]
 Homepage = "https://github.com/NullLabTests/ProofBench"
@@ -67,3 +69,6 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+proofbench-workshop = "proofbench.workshop.cli:main"
+proofbench-attest = "proofbench.attest.attest:main"
