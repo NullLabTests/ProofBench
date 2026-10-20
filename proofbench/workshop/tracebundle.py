@@ -114,14 +114,14 @@ def main(argv: list[str] | None = None) -> int:
         pass
 
     m = json.loads(canonical_json(manifest))
-    m_no_self = json.loads(canonical_json(m))
+    m["artifacts"] = dict(m["artifacts"])
     (bundle_dir / "manifest.json").write_text(
-        canonical_json(m_no_self) + "\n", encoding="utf-8"
+        canonical_json(m) + "\n", encoding="utf-8"
     )
     self_h = hash_file(str(bundle_dir / "manifest.json"))
     m["artifacts"]["manifest.json"] = self_h
-    m_final = canonical_json(m) + "\n"
-    (bundle_dir / "manifest.json").write_text(m_final, encoding="utf-8")
+    m_final_str = canonical_json(m) + "\n"
+    (bundle_dir / "manifest.json").write_text(m_final_str, encoding="utf-8")
     manifest_path = bundle_dir / "manifest.json"
     bundle_hash = hash_file(str(manifest_path))
     (bundle_dir / "bundle.sha256").write_text(bundle_hash + "\n", encoding="utf-8")

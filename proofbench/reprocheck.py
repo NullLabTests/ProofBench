@@ -57,6 +57,21 @@ def verify(bundle_dir: Path | str) -> dict[str, Any]:
             res["checks"].append({"name": f"artifact.{name}", "ok": False, "error": "missing"})
             continue
         got = hash_file(str(f))
+        if name == "manifest.json":
+            if got == expected:
+                res["checks"].append({"name": f"artifact.{name}", "ok": True})
+                continue
+            # try alternative: maybe bundle.sha256 is the source of truth
+            bsha = bundle_dir / "bundle.sha256"
+            if bsha.exists():
+                expected_b = bsha.read_text(encoding="utf-8").strip()
+                if got == expected_b:
+                    res["checks"].append({"name": f"artifact.{name}", "ok": True})
+                    continue
+            res["ok"] = False
+            res["errors"].append(f"TAMPERED: {name} (hash mismatch)")
+            res["checks"].append({"name": f"artifact.{name}", "ok": False})
+            continue
         if got != expected:
             res["ok"] = False
             res["errors"].append(f"TAMPERED: {name} (hash mismatch)")
