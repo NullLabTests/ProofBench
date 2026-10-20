@@ -1,72 +1,73 @@
 # ProofBench Workshop: Traceable, Verifiable, Falsifiable
 
-ProofBench is more than a single benchmark. It is a **workshop** for building trust
-in claims — turning "trust me" into "here's how to check."
-
-The world needs tools that make claims falsifiable instead of just persuasive.
-We ship four tiny, offline-first, CPU-only CLI tools as part of this project so
-anyone can start applying the same discipline immediately.
+ProofBench is a **workshop for trust**. Alongside the benchmark, we ship four
+tiny, offline-first, CPU-only CLI tools that turn "trust me" into "here's how
+to check". The goal: make weak claims hard to support and strong claims easy to
+verify.
 
 ## The Four Tools
 
-| Tool | Purpose | Status |
-|---|---|---|
-| [`tracebundle`](#tracebundle) | Wrap *any* command and emit a hash-chained, content-addressed evidence bundle of stdout, stderr, env (filtered), exit code, git state, timing, and working directory. | Built |
-| [`reprocheck`](#reprocheck) | Given a published evidence bundle from someone else, verify it offline with zero dependencies beyond Python. Fails loud and clearly on tampering. | Built |
-| [`eval-audit`](#eval-audit) | Audit an agent eval harness for red flags: train/test leakage, missing baselines, non-determinism hints, hidden prompts, unverifiable scores, and missing provenance. | Built |
-| [`hermetic-run`](#hermetic-run) | A simple, container-free hermetic runner that snapshots the environment, pins dependency manifests, records a full attestation, and runs commands reproducibly without Firecracker/K8s. | Built |
-
-All four tools share the same philosophy as ProofBench itself: offline-first,
-deterministic where possible, content-addressed, independently verifiable, and
-honest about limitations.
+| Tool | What it does | CLI | Output |
+|---|---|---|---|
+| **[tracebundle](#tracebundle)** | Wrap *any* command and emit a self-contained, hash-chained, content-addressed evidence bundle (stdout, stderr, filtered env, git state, cwd, exit code, timing). | `tracebundle -- <cmd> [...]` | `tracebundle-<ts>-<pid>/` with `manifest.json`, `env.json`, `stdout.txt`, `stderr.txt`, `VERIFICATION.md`, `bundle.sha256` |
+| **[reprocheck](#reprocheck)** | Independently verify a bundle offline with zero network access. Checks manifest, every artifact hash, and optional bundle hash. Fails loud on tampering/missing files. | `reprocheck <bundle-dir>` | Human-readable PASS/FAIL with actionable errors |
+| **[eval-audit](#eval-audit)** | Audit an agent eval harness for reproducibility/verifiability red flags: train/test leakage hints, missing baselines, non-determinism, hidden prompts, unverifiable scoring, missing provenance, secret risks. | `eval-audit <path> [--json]` | Scored report (A–F) with concrete fixes |
+| **[hermetic-run](#hermetic-run)** | Container-free hermetic runner that snapshots env/platform/python/manifest hashes, writes a signed-style attestation, and runs the command transparently. | `hermetic-run [--env-lock FILE] [--out DIR] -- <cmd> [...]` | `hermetic-run-<ts>-<pid>/` with `snapshot.json`, `attestation.json`, `RUN.md` |
 
 ## Philosophy
 
-1. **Make claims falsifiable.** If a claim is worth making, it should be
-   possible to check it.
-2. **Verification should be easier than assertion.** `verify-bundle` and
-   `reprocheck` should be the path of least resistance.
-3. **No hidden trust.** We don't ask for keys, tokens, or network access to
-   verify a bundle.
-4. **Be skeptical of your own tools.** Built-in audits and attestation are first
-   class, not afterthoughts.
-5. **Small tools compound.** Four tiny CLIs can shift norms faster than one giant platform.
+1. **Make claims falsifiable.** If it's worth asserting, it should be checkable.
+2. **Verification before assertion.** Publishing a bundle beats a screenshot.
+3. **No hidden trust.** Verification needs nothing but files on disk.
+4. **Content-address everything.** Hashes establish identity and integrity, not validity.
+5. **Be explicit about limits.** Tools refuse unsafe fallbacks and document what they don't do.
+6. **Tiny tools compound.** A few simple CLIs can shift norms.
 
-## Quick Start
+## Quick Start (offline, CPU-only)
 
 ```bash
-# Install with dev tools
-python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"
+# Install
+python3 -m venv .venv
+.venv/bin/pip install -e ".[dev]"
 
-# Trace any command
-.venv/bin/tracebundle -- run pytest -q
+# 1) Trace any execution
+.venv/bin/tracebundle -- pytest -q
 
-# Verify someone else's bundle
-.venv/bin/reprocheck path/to/bundle
+# 2) Verify it (or someone else's bundle)
+.venv/bin/reprocheck ./tracebundle-*/
 
-# Audit an eval harness
-.venv/bin/eval-audit path/to/eval-harness
+# 3) Audit an eval harness
+.venv/bin/eval-audit ./path/to/harness
+.venv/bin/eval-audit ./path/to/harness --json
 
-# Run hermetically
-.venv/bin/hermetic-run --env-lock requirements.txt -- run python my_script.py
+# 4) Run with a transparent attestation
+.venv/bin/hermetic-run --env-lock pyproject.toml -- python -c "print('ok')"
 ```
 
-## Design Principles
+## Design: A Coherent Story
 
-- **Hash-chained integrity.** Every action and artifact is linked with SHA-256
-  hashes.
-- **Content-addressed artifacts.** Filenames are their hashes; tampering is
-  immediately obvious.
-- **Offline-first.** Everything works air-gapped.
-- **No execution of untrusted blobs.** Tools refuse unsafe fallbacks.
-- **Human-readable and machine-verifiable.** Both reports and JSON outputs exist.
-- **Minimal dependencies.** Core uses only stdlib + the same deps as ProofBench.
+- **Trace** (`tracebundle`) creates proof of *what happened*.
+- **Verify** (`reprocheck`) lets anyone *check that proof* without trust.
+- **Audit** (`eval-audit`) helps you *find holes before publishing*.
+- **Attest** (`hermetic-run`) makes *future runs easier to reproduce*.
 
-## Why now
+Together with ProofBench's benchmark workflow, these tools form a single
+discipline: preregister → run with evidence → audit → publish a bundle →
+let others verify independently.
 
-The web is awash in AI-generated claims. The counterbalance is not more
-benchmarks — it's more **proof**. By bundling these tools together, ProofBench
-Workshop gives developers, researchers, and reviewers a shared toolkit to hold
-claims accountable without needing a massive infra stack.
+## Verification Contract
+
+- **Offline-first:** All operations work air-gapped.
+- **Deterministic serialization:** Canonical JSON (sorted keys, compact) for stable hashes.
+- **Content addressing:** Artifacts referenced by their SHA-256.
+- **Fail loud:** Tampering, missing files, or hash mismatches produce clear errors and non-zero exits.
+- **No secrets in bundles:** Environment is filtered; keys/tokens/secrets are redacted.
+- **Minimal surface:** Stdlib-first, same dependencies as ProofBench.
+
+## Limitations (by design)
+
+- `hermetic-run` provides **transparency + attestation**, not OS-level sandboxing. For untrusted code, use a real sandbox (see `docs/threat-model.md`).
+- `eval-audit` uses heuristics; false positives/negatives are possible — treat it as a reviewer, not a judge.
+- Hashes prove integrity, not correctness or scientific validity.
 
 *"Make weak claims hard to support."*
