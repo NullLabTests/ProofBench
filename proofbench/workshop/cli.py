@@ -5,9 +5,9 @@ from __future__ import annotations
 import json
 import sys
 
-from proofbench.workshop import tracebundle, reprocheck
 from proofbench.attest import attest
 from proofbench.ledger import ledger
+from proofbench.workshop import reprocheck, tracebundle
 
 
 def main(argv: list[str] | None = None) -> int:

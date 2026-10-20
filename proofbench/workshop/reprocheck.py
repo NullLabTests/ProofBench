@@ -1,10 +1,4 @@
-"""reprocheck — independently verify an evidence bundle offline.
-
-reprocheck makes verification the easiest path: given any tracebundle/
-ProofBench-style bundle, it checks manifest integrity, content addresses
-of every artifact, optional bundle hash, and reports clear pass/fail.
-No network access. No secrets required.
-"""
+"""reprocheck — independently verify an evidence bundle offline."""
 
 from __future__ import annotations
 
@@ -16,66 +10,93 @@ from typing import Any
 from proofbench.canonical import canonical_json, hash_file
 
 
-def verify(bundle_dir: Path) -> tuple[bool, list[str]]:
-    errors: list[str] = []
+def verify(bundle_dir: Path | str) -> dict[str, Any]:
+    bundle_dir = Path(bundle_dir)
+    res: dict[str, Any] = {
+        "bundle": str(bundle_dir),
+        "ok": True,
+        "checks": [],
+        "errors": [],
+    }
     if not bundle_dir.exists():
-        errors.append(f"bundle not found: {bundle_dir}")
-        return False, errors
+        res["ok"] = False
+        res["errors"].append(f"bundle not found: {bundle_dir}")
+        return res
     if not bundle_dir.is_dir():
-        errors.append(f"not a directory: {bundle_dir}")
-        return False, errors
+        res["ok"] = False
+        res["errors"].append(f"not a directory: {bundle_dir}")
+        return res
 
     mpath = bundle_dir / "manifest.json"
+    res["checks"].append({"name": "manifest_exists", "ok": mpath.exists()})
     if not mpath.exists():
-        errors.append("missing manifest.json")
-        return False, errors
+        res["ok"] = False
+        res["errors"].append("missing manifest.json")
+        return res
 
     try:
         manifest: dict[str, Any] = json.loads(mpath.read_text(encoding="utf-8"))
+        res["checks"].append({"name": "manifest_json_valid", "ok": True})
     except Exception as e:
-        errors.append(f"manifest.json is not valid JSON: {e}")
-        return False, errors
+        res["ok"] = False
+        res["checks"].append({"name": "manifest_json_valid", "ok": False})
+        res["errors"].append(f"manifest.json is not valid JSON: {e}")
+        return res
 
     artifacts = manifest.get("artifacts", {}) or {}
     if not isinstance(artifacts, dict):
-        errors.append("manifest.artifacts must be an object")
-        return False, errors
+        res["ok"] = False
+        res["errors"].append("manifest.artifacts must be an object")
+        return res
 
     for name, expected in artifacts.items():
         f = bundle_dir / name
         if not f.exists():
-            errors.append(f"MISSING: {name}")
+            res["ok"] = False
+            res["errors"].append(f"MISSING: {name}")
+            res["checks"].append({"name": f"artifact.{name}", "ok": False, "error": "missing"})
             continue
         got = hash_file(str(f))
         if got != expected:
-            errors.append(f"TAMPERED: {name} (hash mismatch)")
+            res["ok"] = False
+            res["errors"].append(f"TAMPERED: {name} (hash mismatch)")
+            res["checks"].append({"name": f"artifact.{name}", "ok": False})
+        else:
+            res["checks"].append({"name": f"artifact.{name}", "ok": True})
 
     bsha = bundle_dir / "bundle.sha256"
     if bsha.exists():
         expected_b = bsha.read_text(encoding="utf-8").strip()
-        got_b = __import__("hashlib").sha256(canonical_json(manifest).encode("utf-8")).hexdigest()
+        got_b = hash_file(str(mpath))
         if got_b != expected_b:
-            errors.append("bundle hash mismatch (manifest tampered)")
+            res["ok"] = False
+            res["errors"].append("bundle hash mismatch (manifest tampered)")
+            res["checks"].append({"name": "bundle_sha256", "ok": False})
+        else:
+            res["checks"].append({"name": "bundle_sha256", "ok": True})
 
-    return len(errors) == 0, errors
+    return res
 
 
 def main(argv: list[str] | None = None) -> int:
     args = argv if argv is not None else sys.argv[1:]
     if not args or args[0] in ("-h", "--help"):
-        print(
-            "usage: reprocheck <bundle-dir>\n\n"
-            "Verify a tracebundle or compatible evidence bundle offline.\n"
-            "Checks manifest, artifact hashes, and optional bundle hash.",
-            file=sys.stderr,
-        )
+        print("usage: reprocheck <bundle-dir>\n\n", file=sys.stderr)
         return 0 if args else 2
-    ok, errs = verify(Path(args[0]))
-    if ok:
+    as_json = "--json" in args
+    target = next((a for a in args if not a.startswith("-")), args[0] if args else ".")
+    res = verify(Path(target))
+    if as_json:
+        print(json.dumps(res, indent=2))
+        return 0 if res.get("ok") else 1
+    if res.get("ok"):
         print("reprocheck: PASSED — bundle is intact and verifiably consistent")
+        for c in res.get("checks", []):
+            if c.get("ok"):
+                print(f"  ✓ {c['name']}")
         return 0
     print("reprocheck: FAILED", file=sys.stderr)
-    for e in errs:
+    for e in res.get("errors", []):
         print(f"  - {e}", file=sys.stderr)
     print("\nTip: verification is offline. No network, no secrets needed.", file=sys.stderr)
     return 1

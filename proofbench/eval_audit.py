@@ -14,7 +14,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 SUSPICIOUS_EXTS = {".py", ".json", ".yaml", ".yml", ".toml", ".md", ".txt", ".csv"}
 
 

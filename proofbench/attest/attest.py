@@ -5,20 +5,20 @@ from __future__ import annotations
 import json
 import os
 import platform
-import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 from proofbench import __version__
-from proofbench.canonical import canonical_json, hash_file, hash_obj
+from proofbench.canonical import hash_file, hash_obj
 
 
 SCHEMA = "attestation/1"
 
 
-def collect_subjects(paths: list[Path]) -> list[dict]:
-    subjects = []
+def collect_subjects(paths: list[Path]) -> list[dict[str, Any]]:
+    subjects: list[dict[str, Any]] = []
     for p in paths:
         if p.is_file():
             subjects.append({"name": str(p), "digest": {"sha256": hash_file(str(p))}})
@@ -35,7 +35,7 @@ def main(argv: list[str] | None = None) -> int:
         print("usage: proofbench-attest [--out FILE] [path ...]", file=sys.stderr)
         return 0 if args else 2
     out = "attestation.json"
-    paths = []
+    paths: list[Path] = []
     i = 0
     while i < len(args):
         if args[i] == "--out" and i + 1 < len(args):
@@ -47,7 +47,7 @@ def main(argv: list[str] | None = None) -> int:
     if not paths:
         paths = [Path(".")]
 
-    att = {
+    att: dict[str, Any] = {
         "_type": "https://in-toto.io/Statement/v1",
         "subject": collect_subjects(paths),
         "predicateType": "https://slsa.dev/provenance/v1",

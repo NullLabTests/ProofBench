@@ -19,7 +19,7 @@ def _safe_env() -> dict[str, str]:
     out: dict[str, str] = {}
     for k, v in os.environ.items():
         kl = k.lower()
-        if any(s in kl for s in ("key", "token", "secret", "password", "pass", "auth")):
+        if any(s in kl for s in ("key", "token", "secret", "password", "pass", "auth", "credential", "private")):
             out[k] = "***REDACTED***"
             continue
         out[k] = v
@@ -55,32 +55,13 @@ def main(argv: list[str] | None = None) -> int:
     (bundle_dir / "stdout.txt").write_text(proc.stdout if proc.stdout is not None else "", encoding="utf-8")
     (bundle_dir / "stderr.txt").write_text(proc.stderr if proc.stderr is not None else "", encoding="utf-8")
 
-    manifest: dict[str, Any] = {
-        "schema": "tracebundle/1",
-        "tracebundle_version": __version__,
-        "command": list(cmd),
-        "exit_code": proc.returncode,
-        "elapsed_seconds": round(elapsed, 6),
-        "started_at_unix": round(start_wall, 6),
-        "cwd": os.getcwd(),
-        "pid": os.getpid(),
-        "git": None,
-        "artifacts": {},
-    }
-
-    try:
-        r = subprocess.run(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        if r.returncode == 0 and r.stdout.strip():
-            manifest["git"] = {"commit": r.stdout.strip()}
-    except Exception:
-        pass
-
+    artifacts: dict[str, str] = {}
     for name in ("stdout.txt", "stderr.txt"):
-        manifest["artifacts"][name] = hash_file(str(bundle_dir / name))
+        artifacts[name] = hash_file(str(bundle_dir / name))
 
     env_json_bytes = (canonical_json(_safe_env()) + "\n").encode("utf-8")
     (bundle_dir / "env.json").write_bytes(env_json_bytes)
-    manifest["artifacts"]["env.json"] = hashlib.sha256(env_json_bytes).hexdigest()
+    artifacts["env.json"] = hashlib.sha256(env_json_bytes).hexdigest()
 
     verification_md = (
         "# tracebundle verification\n\n"
@@ -89,15 +70,40 @@ def main(argv: list[str] | None = None) -> int:
     )
     vm_bytes = verification_md.encode("utf-8")
     (bundle_dir / "VERIFICATION.md").write_bytes(vm_bytes)
-    manifest["artifacts"]["VERIFICATION.md"] = hashlib.sha256(vm_bytes).hexdigest()
+    artifacts["VERIFICATION.md"] = hashlib.sha256(vm_bytes).hexdigest()
 
-    manifest_json_bytes = (canonical_json(manifest) + "\n").encode("utf-8")
-    (bundle_dir / "manifest.json").write_bytes(manifest_json_bytes)
-    manifest["artifacts"]["manifest.json"] = hashlib.sha256(manifest_json_bytes).hexdigest()
+    events = [
+        {"seq": 0, "kind": "start", "ts": start_wall},
+        {"seq": 1, "kind": "finish", "ts": time.time(), "exit_code": proc.returncode},
+    ]
+    manifest: dict[str, Any] = {
+        "schema": "tracebundle/1",
+        "tracebundle_version": __version__,
+        "command": list(cmd),
+        "exit_code": proc.returncode,
+        "elapsed_seconds": round(elapsed, 6),
+        "started_at_unix": round(start_wall, 6),
+        "ended_at_unix": round(time.time(), 6),
+        "cwd": os.getcwd(),
+        "pid": os.getpid(),
+        "git": None,
+        "events": events,
+        "chain_head": hashlib.sha256(canonical_json(events).encode()).hexdigest(),
+        "artifacts": dict(artifacts),
+    }
+    try:
+        r = subprocess.run(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if r.returncode == 0 and r.stdout.strip():
+            manifest["git"] = {"commit": r.stdout.strip()}
+    except Exception:
+        pass
 
-    manifest_final = canonical_json(manifest) + "\n"
-    (bundle_dir / "manifest.json").write_text(manifest_final, encoding="utf-8")
-    (bundle_dir / "bundle.sha256").write_text(hashlib.sha256(manifest_final.encode("utf-8")).hexdigest() + "\n", encoding="utf-8")
+    # Build in a way compatible with common expectations
+    tmp_manifest = json.loads(json.dumps(manifest))
+    (bundle_dir / "manifest.json").write_text(canonical_json(tmp_manifest) + "\n", encoding="utf-8")
+    tmp_manifest["artifacts"]["manifest.json"] = hash_file(str(bundle_dir / "manifest.json"))
+    (bundle_dir / "manifest.json").write_text(canonical_json(tmp_manifest) + "\n", encoding="utf-8")
+    (bundle_dir / "bundle.sha256").write_text(hash_file(str(bundle_dir / "manifest.json")) + "\n", encoding="utf-8")
 
     print(f"tracebundle: wrote {bundle_dir}")
     print(f"tracebundle: verify with `reprocheck {bundle_dir}`")

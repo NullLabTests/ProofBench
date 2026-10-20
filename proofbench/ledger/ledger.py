@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import json
-import os
 import time
 from pathlib import Path
+from typing import Any
 
 from proofbench.canonical import canonical_json, hash_obj
 
@@ -15,8 +15,8 @@ class Ledger:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
-    def append(self, entry: dict) -> dict:
-        rec = {"seq": self._count(), "ts": time.time(), **entry}
+    def append(self, entry: dict[str, Any]) -> dict[str, Any]:
+        rec: dict[str, Any] = {"seq": self._count(), "ts": time.time(), **entry}
         rec["prev_hash"] = self._last_hash()
         rec["hash"] = hash_obj({k: v for k, v in rec.items() if k != "hash"})
         with self.path.open("a", encoding="utf-8") as f:
@@ -45,7 +45,7 @@ class Ledger:
     def verify(self) -> tuple[bool, list[str]]:
         if not self.path.exists():
             return True, []
-        errors = []
+        errors: list[str] = []
         prev = "0" * 64
         seq = 0
         with self.path.open() as f:
