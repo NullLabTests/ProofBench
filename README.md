@@ -68,6 +68,22 @@ another researcher can verify offline — no API key, no network, no GPU.
 
 See `docs/limitations.md` for the full non-claims list.
 
+
+## ProofBench Workshop
+
+ProofBench is a **workshop** for building trust in claims. Alongside the
+benchmark, we ship four tiny, offline-first, CPU-only tools that make claims
+falsifiable instead of just persuasive:
+
+| Tool | What it does | CLI |
+|---|---|---|
+| **tracebundle** | Wrap any command and produce a hash-chained, content-addressed evidence bundle (stdout/stderr, filtered env, git state, exit code, timing). | `tracebundle -- <cmd>` |
+| **reprocheck** | Independently verify someone else's bundle offline with zero network access. Fails loud on tampering. | `reprocheck <bundle>` |
+| **eval-audit** | Audit an agent eval harness for red flags: leakage, missing baselines, non-determinism, hidden prompts, unverifiable scores, missing provenance. | `eval-audit <path>` |
+| **hermetic-run** | Container-free hermetic runner: snapshot env, pin manifests, record an attestation, run reproducibly. | `hermetic-run -- <cmd>` |
+
+See [docs/workshop.md](docs/workshop.md) for design principles and quick start.
+
 ## Recorded results
 
 `RESULTS.md` records actual executed runs with their certified outcomes,
